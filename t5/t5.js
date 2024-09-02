@@ -11,6 +11,8 @@ closeModal.addEventListener('click', function () {
 
 const apiURL = 'https://media1.edu.metropolia.fi/restaurant';
 
+// funkkis tekemää ravintolalista ! muista kutsua!
+
 async function teeRavintolaLista() {
   // eslint-disable-next-line no-undef
   const restaurants = await fetchData(apiURL + '/api/v1/restaurants');
@@ -31,14 +33,30 @@ async function teeRavintolaLista() {
 
       const rivi = document.createElement('tr');
 
-      rivi.addEventListener('click', function () {
+      rivi.addEventListener('click', async () => {
         // hae päivän ruokalista
+        const menu = await fetchData(
+          apiURL + `/api/v1/restaurants/daily/${restaurant._id}/fi`
+        );
+        console.log('Menu nouto: ', menu);
 
         // rakenna listan HTML (muista for lause)
-
-        const listaHTML = `<li>Ruokalaji, hinta, allergiat</li>`;
+        // iteroidaan menun sisällä oleva courses, ei pelkkää ruokalistaa
+        // esitellään listaHTML, jotta näktyy myös for lohkon ulkopuolelle
+        let listaHTML = '';
+        for (const course of menu.courses) {
+          //  listaHTML = `<li>${course.name}, hinta, allergiat</li>`
+          listaHTML += `
+          <li>
+            <h4>${course.name}</h4>
+            <p>Hinta: ${course.price || 'ei ilmoitettu'} €</p>
+            <p>Allergeenit: ${course.diets || 'ei ilmoitettu'}</p>
+          </li>`;
+        }
+        // rakenna listan HTML (muista for lause)
 
         const korostetut = document.querySelectorAll('.highlight');
+
         for (const korostettu of korostetut) {
           korostettu.classList.remove('highlight');
         }
